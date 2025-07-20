@@ -1,56 +1,49 @@
 use raylib::prelude::*;
 
 pub struct Framebuffer {
-    pub color_buffer: Vec<Color>,
-    pub width: u32,
-    pub height: u32,
-    pub background_color: Color,
-    pub current_color: Color,
+    pub width: usize,
+    pub height: usize,
+    pub buffer: Vec<Color>,
 }
 
 impl Framebuffer {
-    pub fn new(width: u32, height: u32) -> Self {
-        let size = (width * height) as usize;
-        let background_color = Color::WHITE;
-        let color_buffer = vec![background_color; size];
+    pub fn new(width: usize, height: usize) -> Self {
         Self {
-            color_buffer,
             width,
             height,
-            background_color,
-            current_color: Color::BLACK,
+            buffer: vec![Color::BLACK; width * height],
         }
     }
 
-    pub fn clear(&mut self) {
-        self.color_buffer.fill(self.background_color);
-    }
-
-    pub fn set_pixel(&mut self, x: u32, y: u32) {
+    pub fn point(&mut self, x: usize, y: usize, color: Color) {
         if x < self.width && y < self.height {
-            let index = (y * self.width + x) as usize;
-            self.color_buffer[index] = self.current_color;
+            self.buffer[y * self.width + x] = color;
         }
     }
 
-    pub fn set_current_color(&mut self, color: Color) {
-        self.current_color = color;
+    pub fn get_color(&self, x: usize, y: usize) -> Color {
+        if x < self.width && y < self.height {
+            self.buffer[y * self.width + x]
+        } else {
+            Color::BLACK
+        }
     }
 
-    pub fn set_background_color(&mut self, color: Color) {
-        self.background_color = color;
+    pub fn swap_buffers(&mut self, other: &mut Framebuffer) {
+        std::mem::swap(&mut self.buffer, &mut other.buffer);
     }
 
-    pub fn swap_buffers(&self, window: &mut RaylibHandle, thread: &RaylibThread) {
-        let mut d = window.begin_drawing(thread);
-        d.clear_background(Color::BLACK);
-
+    pub fn draw(&self, d: &mut RaylibDrawHandle, scale: usize) {
         for y in 0..self.height {
             for x in 0..self.width {
-                let color = self.color_buffer[(y * self.width + x) as usize];
-                if color != self.background_color {
-                    d.draw_pixel(x as i32, y as i32, color);
-                }
+                let color = self.get_color(x, y);
+                d.draw_rectangle(
+                    (x * scale) as i32,
+                    (y * scale) as i32,
+                    scale as i32,
+                    scale as i32,
+                    color,
+                );
             }
         }
     }
