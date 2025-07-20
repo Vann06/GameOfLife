@@ -121,71 +121,173 @@ fn draw_pattern(fb: &mut Framebuffer, base_x: usize, base_y: usize, pattern: &[(
 
 // ---------------------- DISTRIBUCIÓN -----------------------
 pub fn populate_field(fb: &mut Framebuffer) {
-    // Glider guns laterales
-    place_gun(fb, 0, 5);
-    place_gun(fb, 60, 5);
+    // Glider guns (infinitos)
+    place_gun(fb, 0, 10);    
+    place_gun(fb, 60, 10);   
 
     // Pulsar central
     place_pulsar(fb, 44, 44);
 
-    // ---------- LWSS ----------
-    for y in (0..100).step_by(12) {
-        place_light_weight_spaceship(fb, 0, y);
-        place_light_weight_spaceship_flipped(fb, 95, y);
+    // LWSS desde los lados horizontales
+    for y in (2..90).step_by(8) {
+        place_light_weight_spaceship(fb, 0, y);     
+        place_light_weight_spaceship_flipped(fb, 90, y); 
     }
 
-    for x in (10..90).step_by(20) {
-        place_light_weight_spaceship(fb, x, 20);
-        place_light_weight_spaceship_flipped(fb, x, 75);
+    // MWSS desde arriba y abajo
+    for x in (2..90).step_by(10) {
+        place_middle_weight_spaceship(fb, x, 0);    
+        place_middle_weight_spaceship_flipped(fb, x, 90); 
     }
 
-    // ---------- MWSS ----------
-    for x in (5..95).step_by(15) {
-        place_middle_weight_spaceship(fb, x, 0);
-        place_middle_weight_spaceship_flipped(fb, x, 95);
+    // HWSS en esquinas y diagonales
+    for i in (0..80).step_by(16) {
+        place_heavy_weight_spaceship(fb, i, i);
+        place_heavy_weight_spaceship_flipped(fb, 90 - i, i);
     }
 
-    for y in (15..90).step_by(20) {
-        place_middle_weight_spaceship(fb, 10, y);
-        place_middle_weight_spaceship_flipped(fb, 85, y);
-    }
-
-    // ---------- HWSS ----------
+    // Refuerzo de LWSS dentro del campo
     for &(x, y) in &[
-        (0, 0), (90, 0), (0, 90), (90, 90), 
-        (45, 0), (45, 90), 
-        (0, 45), (90, 45), 
+        (10, 40), (25, 55), (40, 25), (60, 70), (75, 40)
     ] {
-        place_heavy_weight_spaceship(fb, x, y);
+        place_light_weight_spaceship(fb, x, y);
     }
 
-    // ---------- Blinkers y Beacons ----------
+    // MWSS cruzados cerca del centro
     for &(x, y) in &[
-        (20, 44), (68, 44), (44, 20), (44, 68),
-        (28, 28), (60, 28), (28, 60), (60, 60),
+        (20, 35), (35, 20), (50, 65), (65, 50)
     ] {
-        place_blinker(fb, x, y);
+        place_middle_weight_spaceship(fb, x, y);
     }
 
-    place_beacon(fb, 34, 34);
-    place_beacon(fb, 54, 34);
-    place_beacon(fb, 34, 54);
-    place_beacon(fb, 54, 54);
+    // Gliders cruzados para más caos
+    for i in (2..88).step_by(8) {
+        place_glider(fb, i, i);
+        place_glider(fb, 90 - i, i);
+    }
 
-    // ---------- Still lifes: loaf, boat, block, tub ----------
+    // Still lifes (estáticos) en zonas vacías
     for &(x, y) in &[
-        (10, 80), (30, 85), (50, 90), (70, 95),
-        (15, 15), (80, 15), (15, 80), (80, 80)
+        (5, 85), (15, 78), (25, 82), (35, 88),
+        (50, 85), (65, 75), (80, 85), (85, 78)
+    ] {
+        place_block(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (10, 65), (30, 68), (45, 70), (75, 65)
+    ] {
+        place_tub(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (20, 80), (55, 78), (70, 88)
+    ] {
+        place_boat(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (40, 80), (60, 75)
     ] {
         place_loaf(fb, x, y);
-        place_boat(fb, x + 3, y);
-        place_block(fb, x + 6, y + 3);
-        place_tub(fb, x + 9, y + 1);
     }
 
-    // ---------- Más movimiento intermedio ----------
-    for x in (20..80).step_by(12) {
-        place_light_weight_spaceship(fb, x, 40);
-        place_middle_weight_spaceship_flipped(fb, x, 55);
+    // Toads (osciladores pequeños) como adorno inferior
+    for &(x, y) in &[
+        (12, 95), (32, 93), (52, 96), (72, 94)
+    ] {
+        place_toad(fb, x, y);
     }
+
+        // 🌟 Reanimar parte superior con más spaceships y gliders
+    for &(x, y) in &[
+        (10, 2), (25, 3), (40, 2), (55, 4), (70, 3)
+    ] {
+        place_light_weight_spaceship(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (15, 6), (30, 7), (45, 6), (60, 8)
+    ] {
+        place_middle_weight_spaceship(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (20, 10), (35, 10), (50, 10), (65, 10)
+    ] {
+        place_glider(fb, x, y);
+    }
+
+    // ✨ Osciladores en la franja superior
+    for &(x, y) in &[
+        (12, 5), (32, 4), (52, 6), (72, 5)
+    ] {
+        place_toad(fb, x, y);
+    }
+
+    // 🧱 Still lifes arriba como bloques decorativos
+    for &(x, y) in &[
+        (5, 0), (20, 0), (35, 1), (50, 0), (70, 0)
+    ] {
+        place_block(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (15, 2), (45, 3), (65, 1)
+    ] {
+        place_tub(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (25, 1), (60, 2)
+    ] {
+        place_boat(fb, x, y);
+    }
+
+        // 🚀 LWSS desde el borde derecho hacia el centro (horizontal)
+    for &(x, y) in &[
+        (90, 10), (90, 25), (90, 40), (90, 55), (90, 70)
+    ] {
+        place_light_weight_spaceship_flipped(fb, x, y);
+    }
+
+    // 🚀 MWSS en diagonal desde el borde derecho
+    for (i, x) in (65..90).step_by(5).enumerate() {
+        place_middle_weight_spaceship_flipped(fb, x, 10 + i * 10);
+    }
+
+    // 🌀 Gliders descendiendo en zigzag desde la esquina superior derecha
+    for &(x, y) in &[
+        (85, 0), (80, 10), (75, 20), (70, 30), (65, 40)
+    ] {
+        place_glider(fb, x, y);
+    }
+
+    // ✨ Toads laterales
+    for &(x, y) in &[
+        (85, 20), (85, 40), (85, 60)
+    ] {
+        place_toad(fb, x, y);
+    }
+
+    // 🧱 Still lifes (tubs y boats) decorando la derecha
+    for &(x, y) in &[
+        (88, 5), (88, 30), (88, 50), (88, 70)
+    ] {
+        place_tub(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (86, 15), (86, 35), (86, 65)
+    ] {
+        place_boat(fb, x, y);
+    }
+
+    for &(x, y) in &[
+        (84, 25), (84, 45)
+    ] {
+        place_block(fb, x, y);
+    }
+
+
 }
